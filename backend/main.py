@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from typing import Optional
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import json
@@ -11,6 +12,7 @@ import websockets
 from dotenv import load_dotenv
 load_dotenv()
 
+from services.image_processor import analyze_sar_image
 import time
 
 # Configuration Mode:
@@ -204,10 +206,10 @@ async def startup_event():
 # Helper: Parse Historical NOAA / DMA CSV files
 # ---------------------------------------------------------------------------
 def load_historical_tracks():
-    csv_path = os.path.join("data", "historical_noaa_dma_sample.csv")
+    csv_path = os.path.join(os.path.dirname(__file__), "data", "historical_noaa_dma_sample.csv")
     if not os.path.exists(csv_path):
-        print(f"Error: {csv_path} not found. Run generate_historical_data.py first.")
-        return []
+        from generate_historical_data import generate_historical_ais
+        generate_historical_ais()
         
     df = pd.read_csv(csv_path)
     # Group by MMSI to rebuild the tracks
@@ -353,8 +355,45 @@ def get_live_vessels():
             })
         return current_positions
 
+@app.post("/api/analyze-satellite-image")
+async def analyze_image_endpoint(file: Optional[UploadFile] = File(None)):
+    """
+    Accepts an uploaded SAR satellite image (.png, .jpg, .tif) or processes the default scene.
+    Runs real OpenCV segmentation to extract dark patches, centroid, area (km2), and GeoJSON.
+    """
+    default_img_path = os.path.join(os.path.dirname(__file__), "data", "sample_sar_scene.png")
+    
+    if file:
+        content = await file.read()
+        analysis = analyze_sar_image(content)
+    elif os.path.exists(default_img_path):
+        analysis = analyze_sar_image(default_img_path)
+    else:
+        # Fallback if image not generated yet
+        from test_image_processor import generate_and_test_sar
+        generate_and_test_sar()
+        analysis = analyze_sar_image(default_img_path)
+        
+    return analysis
+
 @app.post("/api/run-pipeline")
 def run_pipeline():
+    # 1. Run real OpenCV SAR Image Analysis
+    sar_path = os.path.join(os.path.dirname(__file__), "data", "sample_sar_scene.png")
+    if not os.path.exists(sar_path):
+        try:
+            from test_image_processor import generate_and_test_sar
+            generate_and_test_sar()
+        except Exception:
+            pass
+
+    sar_results = None
+    if os.path.exists(sar_path):
+        try:
+            sar_results = analyze_sar_image(sar_path)
+        except Exception as e:
+            print(f"Warning: Real image analysis failed: {e}")
+
     # Load tracks from historical CSV or compile from live tracks in memory
     vessel_tracks = []
     
@@ -458,11 +497,13 @@ def run_pipeline():
             "satellite": "Sentinel-1A (C-band, VV/VH)",
             "acquiredAt": "2026-08-30T12:00:00Z",
             "resolutionM": 10,
-            "darkPatchesDetected": 3,
-            "confirmedSlicks": 1,
-            "lookAlikesRejected": 2,
-            "avgConfidence": 0.91,
-            "slickAreaKm2": 18.4
+            "darkPatchesDetected": sar_results["patchesDetected"] if sar_results else 3,
+            "confirmedSlicks": sar_results["summary"]["confirmedCount"] if sar_results else 1,
+            "lookAlikesRejected": sar_results["summary"]["lookalikesCount"] if sar_results else 2,
+            "avgConfidence": sar_results["summary"]["confidence"] if sar_results else 0.91,
+            "slickAreaKm2": sar_results["summary"]["areaKm2"] if sar_results else 18.4,
+            "perimeterKm": sar_results["summary"]["perimeterKm"] if sar_results else 24.6,
+            "centroid": sar_results["summary"]["centroid"] if sar_results else {"lat": 17.32, "lon": 71.88}
         },
         "aisAnalysis": {
             "vesselsInRegion": len(vessel_tracks),
@@ -484,7 +525,7 @@ def run_pipeline():
                 }
             }]
         },
-        "slick": {
+        "slick": sar_results["slickGeoJSON"] if (sar_results and sar_results.get("slickGeoJSON", {}).get("features")) else {
             "type": "FeatureCollection",
             "features": [{
                 "type": "Feature",
@@ -495,7 +536,7 @@ def run_pipeline():
                 }
             }]
         },
-        "lookalikes": {
+        "lookalikes": sar_results["lookalikesGeoJSON"] if (sar_results and sar_results.get("lookalikesGeoJSON", {}).get("features")) else {
             "type": "FeatureCollection",
             "features": [
                 {

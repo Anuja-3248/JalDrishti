@@ -48,5 +48,16 @@ export async function runPipeline(): Promise<PipelineResponse> {
   }
 }
 
+export async function uploadSatelliteImage(file: File): Promise<any> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await client.post("/analyze-satellite-image", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data;
+}
+
 export default client;
 

@@ -105,11 +105,12 @@ export default function Dashboard({ onNavigateHome, autoRun = true }: DashboardP
     }
   }
 
+  const [hasAnalyzed, setHasAnalyzed] = useState(false);
+
+  // We don't auto-run fake data on page load anymore.
+  // The system starts in an authentic "Awaiting SAR Scene" state!
   useEffect(() => {
-    if (hasRun.current) return;
-    hasRun.current = true;
-    handleRunPipeline();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Awaiting user action
   }, []);
 
   const selectedSuspect: Suspect | null = data?.suspects.find((s) => s.mmsi === selectedMmsi) ?? null;
@@ -117,6 +118,47 @@ export default function Dashboard({ onNavigateHome, autoRun = true }: DashboardP
   function handleSelectVessel(mmsi: string) {
     setSelectedMmsi((prev) => (prev === mmsi ? null : mmsi));
     setActiveTab("suspects");
+  }
+
+  async function handleImageAnalyzed(analysis: any) {
+    if (!analysis || !analysis.summary) return;
+    setHasAnalyzed(true);
+
+    let base = data;
+    if (!base) {
+      try {
+        base = await runPipeline();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    if (base) {
+      setData({
+        ...base,
+        slick: analysis.slickGeoJSON?.features?.length ? analysis.slickGeoJSON : base.slick,
+        lookalikes: analysis.lookalikesGeoJSON?.features?.length ? analysis.lookalikesGeoJSON : base.lookalikes,
+        imageAnalysis: {
+          ...base.imageAnalysis,
+          darkPatchesDetected: analysis.patchesDetected,
+          confirmedSlicks: analysis.summary.confirmedCount,
+          lookAlikesRejected: analysis.summary.lookalikesCount,
+          avgConfidence: analysis.summary.confidence,
+          slickAreaKm2: analysis.summary.areaKm2,
+        },
+      });
+
+      // Highlight the first 4 workflow steps as completed
+      setSteps((prev) =>
+        prev.map((s, idx) =>
+          idx <= 3 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s
+        )
+      );
+    }
+
+    setToastMsg(
+      `SAR Scene Analyzed: ${analysis.summary.confirmedCount} slick detected (${analysis.summary.areaKm2} km²)`
+    );
   }
 
   return (
@@ -162,13 +204,29 @@ export default function Dashboard({ onNavigateHome, autoRun = true }: DashboardP
         <aside className="flex w-[340px] shrink-0 flex-col border-l border-stroke bg-panel">
           <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
           <div className="flex-1 overflow-y-auto p-3">
-            {!data ? (
-              <p className="mt-4 text-center text-xs text-ink-faint">Waiting for pipeline results…</p>
+            {activeTab === "image" && (
+              <ImageAnalysisPanel
+                metrics={data?.imageAnalysis ?? null}
+                hasAnalyzed={hasAnalyzed}
+                onImageAnalyzed={handleImageAnalyzed}
+              />
+            )}
+            {!data && activeTab !== "image" ? (
+              <div className="flex flex-col items-center justify-center p-6 text-center">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-raised text-sonar/70">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <p className="mt-2 text-xs font-medium text-ink-muted">Awaiting Scene Analysis</p>
+                <p className="mt-1 text-[11px] text-ink-faint">
+                  Upload an image in the <b>Image</b> tab or click <b>Run Investigation</b> to populate this tab.
+                </p>
+              </div>
             ) : (
               <>
-                {activeTab === "image" && <ImageAnalysisPanel metrics={data.imageAnalysis} />}
-                {activeTab === "ais" && <AisAnalysisPanel metrics={data.aisAnalysis} />}
-                {activeTab === "suspects" && (
+                {activeTab === "ais" && data && <AisAnalysisPanel metrics={data.aisAnalysis} />}
+                {activeTab === "suspects" && data && (
                   <div className="flex flex-col gap-3">
                     <SuspectsTable
                       suspects={data.suspects}
@@ -178,7 +236,7 @@ export default function Dashboard({ onNavigateHome, autoRun = true }: DashboardP
                     <SuspectDetailPanel suspect={selectedSuspect} />
                   </div>
                 )}
-                {activeTab === "alert" && (
+                {activeTab === "alert" && data && (
                   <div className="flex flex-col gap-4">
                     <AlertPanel alert={data.alert} onSubmit={() => setToastMsg("Alert submitted to coastal command")} />
                     <div className="border-t border-stroke pt-4">
@@ -186,7 +244,7 @@ export default function Dashboard({ onNavigateHome, autoRun = true }: DashboardP
                     </div>
                   </div>
                 )}
-                {activeTab === "response" && (
+                {activeTab === "response" && data && (
                   <ResponseMonitoring
                     responsePoints={data.responsePoints}
                     forecast={data.forecast}
