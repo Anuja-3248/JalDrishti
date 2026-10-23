@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JalDrishti | Oil Spill Detection & Vessel Analysis</title>
+  <meta name="description"
+    content="AI-Powered Oil Spill Detection, Source Tracking & Vessel Analysis. Detect. Trace. Protect.">
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+
+  <!-- ========== NAVBAR ========== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#" class="brand">
+        <div class="brand-orb"><i class="fa-solid fa-water"></i></div>
+        <span>Jal<span class="brand-accent">Drishti</span></span>
+      </a>
+      <ul class="nav-menu">
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#features">Our Solution</a></li>
+        <li><a href="#cta">Contact</a></li>
+      </ul>
+      <div class="nav-cta">
+        <span class="live-badge"><span class="live-dot"></span>SAR LIVE</span>
+        <button class="btn-primary" onclick="openModal()">
+          <i class="fa-solid fa-satellite-dish"></i> Detect Oil Spill
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== HERO SECTION ========== -->
+  <section class="hero" id="hero" style="background-image: url('final_image.png');">
+
+    <!-- Dark overlay so text remains readable -->
+    <div
+      style="position:absolute;inset:0;background:linear-gradient(to right, rgba(5,15,35,0.92) 45%, rgba(5,15,35,0.45) 75%, rgba(5,15,35,0.15) 100%);z-index:0;">
+    </div>
+
+
+    <!-- Floating satellite particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Hero Content -->
+    <div class="hero-content" style="padding-top: 14rem;">
+
+      <h1 class="hero-h1">
+        Protecting Our Oceans<br>
+        with <span class="gradient-word">Intelligent Technology</span>
+      </h1>
+
+      <h2 class="hero-h2">
+        AI-Powered Oil Spill Detection, Source Tracking &amp; Vessel Analysis
+      </h2>
+
+      <blockquote class="hero-quote">
+        Detect oil spills from satellite imagery, trace their probable origin using environmental data,
+        and identify potential vessels through intelligent analysis.
+      </blockquote>
+
+      <div class="hero-buttons">
+        <button class="btn-primary btn-hero" onclick="openModal()">
+          <i class="fa-solid fa-magnifying-glass"></i> Detect Oil Spill
+        </button>
+        <button class="btn-ghost btn-hero" onclick="window.open('http://localhost:5173', '_blank')"
+          style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.4); color: #ffffff;">
+          <i class="fa-solid fa-map-location-dot"></i> View Dashboard
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator">
+      <span>SCROLL TO EXPLORE</span>
+      <div class="scroll-line"></div>
+    </div>
+
+  </section>
+
+  <!-- ========== WHAT WE DO ========== -->
+  <section class="what-we-do" id="what-we-do">
+    <div class="container">
+      <div class="section-label"><i class="fa-solid fa-eye"></i> What We Do</div>
+      <h2 class="section-h2" style="color: #ffffff;">End-to-End Ocean Intelligence</h2>
+      <p class="section-sub" style="color: rgba(255, 255, 255, 0.85);">
+        From raw satellite imagery to a ranked list of vessels for investigation — our platform automates the entire
+        workflow so analysts can act fast.
+      </p>
+      <div class="what-grid">
+        <div class="what-item">
+          <div class="what-icon" style="--c:#06b6d4"><i class="fa-solid fa-satellite"></i></div>
+          <h3>Spaceborne Detection</h3>
+          <p>SAR radar imagery processed to detect oil slick signatures across vast ocean regions.</p>
+        </div>
+        <div class="what-item">
+          <div class="what-icon" style="--c:#38bdf8"><i class="fa-solid fa-water"></i></div>
+          <h3>Slick Characterization</h3>
+          <p>Geometry, extent, and type of oil slick automatically extracted from radar data.</p>
+        </div>
+        <div class="what-item">
+          <div class="what-icon" style="--c:#818cf8"><i class="fa-solid fa-wind"></i></div>
+          <h3>Origin Hindcasting</h3>
+          <p>Ocean current &amp; wind models run backwards to locate the probable discharge point.</p>
+        </div>
+        <div class="what-item">
+          <div class="what-icon" style="--c:#34d399"><i class="fa-solid fa-ship"></i></div>
+          <h3>Vessel Ranking</h3>
+          <p>AIS telemetry cross-referenced to rank potential vessels for further investigation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== HOW IT WORKS — JOURNEY PATH ========== -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+
+      <h2 class="section-h2">How It Works</h2>
+      <p class="section-sub">A streamlined 4-step intelligent workflow — from satellite pass to vessel ranking.</p>
+
+      <!-- Step Flow Strip -->
+      <div class="flow-strip">
+        <div class="flow-node active" data-step="1">
+          <div class="flow-emoji">🛰️</div>
+          <div class="flow-step-name">Detect</div>
+          <div class="flow-step-sub">Satellite Image</div>
+        </div>
+        <div class="flow-connector">
+          <div class="flow-line"></div>
+          <i class="fa-solid fa-arrow-right flow-arrow"></i>
+        </div>
+        <div class="flow-node" data-step="2">
+          <div class="flow-emoji">🌊</div>
+          <div class="flow-step-name">Trace</div>
+          <div class="flow-step-sub">Oil Slick</div>
+        </div>
+        <div class="flow-connector">
+          <div class="flow-line"></div>
+          <i class="fa-solid fa-arrow-right flow-arrow"></i>
+        </div>
+        <div class="flow-node" data-step="3">
+          <div class="flow-emoji">⏪</div>
+          <div class="flow-step-name">Hindcast</div>
+          <div class="flow-step-sub">Probable Origin</div>
+        </div>
+        <div class="flow-connector">
+          <div class="flow-line"></div>
+          <i class="fa-solid fa-arrow-right flow-arrow"></i>
+        </div>
+        <div class="flow-node" data-step="4">
+          <div class="flow-emoji">🚢</div>
+          <div class="flow-step-name">Analyze</div>
+          <div class="flow-step-sub">Candidate Vessels</div>
+        </div>
+      </div>
+
+      <!-- Dashed Journey Path Cards -->
+      <div class="journey">
+
+        <div class="journey-item left" data-step="1">
+          <div class="journey-media">
+            <div class="journey-visual v1">
+              <div class="sar-grid"></div>
+              <div class="sar-slick"></div>
+              <div class="sar-label">SAR RADAR RETURN</div>
+            </div>
+          </div>
+          <div class="journey-path">
+            <div class="path-node"><span>01</span></div>
+            <div class="path-line dashed"></div>
+          </div>
+          <div class="journey-content">
+            <div class="step-tag">Step 01</div>
+            <h3>Satellite Detection</h3>
+            <p>
+              Detect potential oil spills from SAR (Synthetic Aperture Radar) satellite imagery. Unlike optical cameras,
+              SAR penetrates clouds and works day &amp; night — making it ideal for continuous ocean surveillance.
+            </p>
+            <div class="step-chip"><i class="fa-solid fa-satellite"></i> Sentinel-1 / RADARSAT</div>
+          </div>
+        </div>
+
+        <div class="journey-item right" data-step="2">
+          <div class="journey-content">
+            <div class="step-tag">Step 02</div>
+            <h3>Slick Analysis</h3>
+            <p>
+              Analyze the oil slick's precise geographic location, shape, area, and surface characteristics.
+              Differentiate between mineral oil and biogenic look-alikes using spectral and texture features.
+            </p>
+            <div class="step-chip"><i class="fa-solid fa-water"></i> Area · Perimeter · Texture Analysis</div>
+          </div>
+          <div class="journey-path">
+            <div class="path-node"><span>02</span></div>
+            <div class="path-line dashed"></div>
+          </div>
+          <div class="journey-media">
+            <div class="journey-visual v2">
+              <svg viewBox="0 0 240 160" class="slick-svg">
+                <ellipse cx="120" cy="80" rx="85" ry="45" fill="rgba(239,68,68,0.15)" stroke="#ef4444"
+                  stroke-width="1.5" stroke-dasharray="6 3" />
+                <ellipse cx="110" cy="75" rx="55" ry="28" fill="rgba(239,68,68,0.25)" stroke="#ef4444"
+                  stroke-width="1" />
+                <ellipse cx="115" cy="78" rx="30" ry="16" fill="rgba(239,68,68,0.4)" stroke="#f87171"
+                  stroke-width="1" />
+                <text x="120" y="135" fill="#ef4444" font-size="10" text-anchor="middle" font-family="monospace">~42.5
+                  m³ CRUDE</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="journey-item left" data-step="3">
+          <div class="journey-media">
+            <div class="journey-visual v3">
+              <svg viewBox="0 0 240 160" class="hindcast-svg">
+                <defs>
+                  <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                    <path d="M0,0 L8,4 L0,8 Z" fill="#38bdf8" />
+                  </marker>
+                </defs>
+                <!-- Current arrows -->
+                <line x1="20" y1="40" x2="60" y2="60" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 2"
+                  marker-end="url(#arrowBlue)" opacity="0.6" />
+                <line x1="50" y1="20" x2="80" y2="50" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 2"
+                  marker-end="url(#arrowBlue)" opacity="0.6" />
+                <line x1="160" y1="30" x2="130" y2="60" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 2"
+                  marker-end="url(#arrowBlue)" opacity="0.6" />
+                <!-- Drift path backwards -->
+                <path d="M160,100 Q130,85 100,75 Q70,65 50,55" stroke="#06b6d4" stroke-width="2" fill="none"
+                  stroke-dasharray="8 4" />
+                <!-- Slick location -->
+                <circle cx="160" cy="100" r="12" fill="rgba(239,68,68,0.3)" stroke="#ef4444" stroke-width="1.5" />
+                <text x="160" y="104" fill="#ef4444" font-size="9" text-anchor="middle">SLICK</text>
+                <!-- Origin -->
+                <circle cx="50" cy="55" r="10" fill="rgba(6,182,212,0.3)" stroke="#06b6d4" stroke-width="2" />
+                <text x="50" y="59" fill="#06b6d4" font-size="8" text-anchor="middle">SRC</text>
+                <text x="120" y="145" fill="#94a3b8" font-size="9" text-anchor="middle">Ocean Current Hindcast</text>
+              </svg>
+            </div>
+          </div>
+          <div class="journey-path">
+            <div class="path-node"><span>03</span></div>
+            <div class="path-line dashed"></div>
+          </div>
+          <div class="journey-content">
+            <div class="step-tag">Step 03</div>
+            <h3>Origin Tracking</h3>
+            <p>
+              Use historical wind and ocean-current data to run particle trajectory models backwards in time —
+              estimating the probable source region and time window of the discharge.
+            </p>
+            <div class="step-chip"><i class="fa-solid fa-clock-rotate-left"></i> Hindcast · Drift Model · Wind Data
+            </div>
+          </div>
+        </div>
+
+        <div class="journey-item right" data-step="4">
+          <div class="journey-content">
+            <div class="step-tag">Step 04</div>
+            <h3>Vessel Analysis</h3>
+            <p>
+              Use AIS telemetry data to identify and <strong>rank potential vessels</strong> based on their proximity to
+              the source region, transit timing, cargo type, and historical trajectory.
+            </p>
+            <div class="important-note">
+              <i class="fa-solid fa-circle-check"></i>
+              We identify and rank <strong>potential vessels for further investigation</strong> — not attribution.
+            </div>
+            <div class="step-chip"><i class="fa-solid fa-ship"></i> AIS · IMO · Flag State · Cargo</div>
+          </div>
+          <div class="journey-path">
+            <div class="path-node"><span>04</span></div>
+          </div>
+          <div class="journey-media">
+            <div class="journey-visual v4">
+              <div class="vessel-list">
+                <div class="vessel-row top">
+                  <div class="vessel-rank">#1</div>
+                  <div class="vessel-info">
+                    <div class="vessel-name">MV OCEAN STAR</div>
+                    <div class="vessel-meta">Panama · IMO 9421873</div>
+                  </div>
+                  <div class="vessel-score high">98.4%</div>
+                </div>
+                <div class="vessel-row">
+                  <div class="vessel-rank">#2</div>
+                  <div class="vessel-info">
+                    <div class="vessel-name">CONTAINER SH-22</div>
+                    <div class="vessel-meta">Liberia · IMO 9112440</div>
+                  </div>
+                  <div class="vessel-score low">12.1%</div>
+                </div>
+                <div class="vessel-row">
+                  <div class="vessel-rank">#3</div>
+                  <div class="vessel-info">
+                    <div class="vessel-name">MV ADRIATIC</div>
+                    <div class="vessel-meta">Malta · IMO 9308751</div>
+                  </div>
+                  <div class="vessel-score low">4.3%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== KEY FEATURES ========== -->
+  <section class="features" id="features">
+    <div class="container">
+      <h2 class="section-h2" style="color: #ffffff;">Why Our Solution?</h2>
+      <p class="section-sub" style="color: rgba(255, 255, 255, 0.85);">Built for accuracy, speed, and scientific rigour
+        in marine environmental protection.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon" style="--fc:#06b6d4">🌍</div>
+            <div class="feature-num">01</div>
+          </div>
+          <h3>Faster Monitoring</h3>
+          <p>Satellite-based monitoring of large ocean areas at a speed impossible with aerial or vessel patrols.</p>
+          <ul class="feature-list">
+            <li><i class="fa-solid fa-check"></i> 24/7 all-weather coverage</li>
+            <li><i class="fa-solid fa-check"></i> Wide swath SAR imagery</li>
+            <li><i class="fa-solid fa-check"></i> Near real-time processing</li>
+          </ul>
+        </div>
+
+        <div class="feature-card featured">
+          <div class="feature-badge">Most Important</div>
+          <div class="feature-top">
+            <div class="feature-icon" style="--fc:#818cf8">🎯</div>
+            <div class="feature-num">02</div>
+          </div>
+          <h3>Intelligent Source Tracking</h3>
+          <p>Environmental data and hydrodynamic hindcasting help estimate the probable origin of the discharge.</p>
+          <ul class="feature-list">
+            <li><i class="fa-solid fa-check"></i> Ocean current models</li>
+            <li><i class="fa-solid fa-check"></i> Wind drift analysis</li>
+            <li><i class="fa-solid fa-check"></i> Probabilistic source region</li>
+          </ul>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-top">
+            <div class="feature-icon" style="--fc:#34d399">🚢</div>
+            <div class="feature-num">03</div>
+          </div>
+          <h3>Explainable Vessel Ranking</h3>
+          <p>Multiple spatial-temporal factors are combined to generate a transparent candidate vessel likelihood score.
+          </p>
+          <ul class="feature-list">
+            <li><i class="fa-solid fa-check"></i> AIS trajectory matching</li>
+            <li><i class="fa-solid fa-check"></i> Proximity &amp; timing score</li>
+            <li><i class="fa-solid fa-check"></i> Explainable AI ranking</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CALL TO ACTION ========== -->
+  <section class="cta-section" id="cta">
+    <div class="cta-ocean-bg">
+      <canvas id="cta-canvas"></canvas>
+    </div>
+    <div class="container">
+      <div class="cta-card">
+        <div class="cta-tagline">
+          <span>Detect.</span> <span>Trace.</span> <span>Protect.</span>
+        </div>
+        <h2>Ready to Protect Our Oceans?</h2>
+        <p>Empowering maritime agencies, coast guards, and environmental researchers with intelligent satellite-based
+          intelligence.</p>
+        <div class="cta-buttons">
+          <button class="btn-primary btn-lg" onclick="openModal()" style="color: #ffffff;">
+            <i class="fa-solid fa-magnifying-glass"></i> Detect Oil Spill Now
+          </button>
+          <button class="btn-ghost btn-lg" onclick="smoothScroll('hero')"
+            style="color: #ffffff; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.35);">
+            <i class="fa-solid fa-arrow-up"></i> Back to Top
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <div class="brand-orb sm"><i class="fa-solid fa-water"></i></div>
+        <span>Jal<span class="brand-accent">Drishti</span></span>
+      </div>
+      <p class="footer-text">© 2026 JalDrishti — AI-Powered Ocean Protection & Vessel Analysis System</p>
+      <p class="footer-disclaimer">
+        This system identifies and ranks <em>potential candidates for further investigation</em>. It does not constitute
+        legal attribution or judgment.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ========== MODAL ========== -->
+  <div class="modal-overlay" id="modal" onclick="closeModalOutside(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-icon"><i class="fa-solid fa-satellite-dish"></i></div>
+      <h3>Launch Oil Spill Analysis</h3>
+      <p>Connect to the SAR satellite feed and begin intelligent detection.</p>
+      <form onsubmit="handleSubmit(event)">
+        <div class="field">
+          <label>Full Name / Analyst</label>
+          <input type="text" id="modal-name" placeholder="e.g. Officer Sarah Jenkins" required>
+        </div>
+        <div class="field">
+          <label>Organization / Agency</label>
+          <input type="text" placeholder="e.g. Maritime Protection Agency" required>
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" placeholder="analyst@coastguard.gov" required>
+        </div>
+        <button type="submit" class="btn-primary btn-full">
+          <i class="fa-solid fa-play"></i> Launch Analysis Session
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
