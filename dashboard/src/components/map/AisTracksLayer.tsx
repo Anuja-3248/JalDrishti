@@ -41,7 +41,7 @@ export default function AisTracksLayer({
         const suspect = suspectMap.get(mmsi);
         const head = latlngs[latlngs.length - 1];
 
-        const color = isSuspect ? "#C53B3B" : "#267E7E";
+        const color = isSuspect ? "#DC2626" : "#0891B2";
         const weight = isSelected ? 3.5 : isSuspect ? 2.4 : 1.4;
         const opacity = isSuspect || isSelected ? 0.95 : 0.55;
 
@@ -70,7 +70,7 @@ export default function AisTracksLayer({
               center={head}
               radius={isSelected ? 6 : isSuspect ? 5 : 3.5}
               pathOptions={{
-                color: isSelected ? "#2C2421" : color,
+                color: isSelected ? "#1E293B" : color,
                 fillColor: color,
                 fillOpacity: 0.95,
                 weight: isSelected ? 2.5 : 1.2,

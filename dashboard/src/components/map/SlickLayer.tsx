@@ -14,10 +14,10 @@ export default function SlickLayer({ slick, lookalikes, showLookalikes }: SlickL
         key="slick"
         data={slick as unknown as GeoJSON.GeoJsonObject}
         style={{
-          color: "#C53B3B",
+          color: "#DC2626",
           weight: 2,
-          fillColor: "#C53B3B",
-          fillOpacity: 0.35,
+          fillColor: "#DC2626",
+          fillOpacity: 0.3,
         }}
         onEachFeature={(feature, layer) => {
           const p = feature.properties ?? {};
@@ -33,11 +33,11 @@ export default function SlickLayer({ slick, lookalikes, showLookalikes }: SlickL
           key="lookalikes"
           data={lookalikes as unknown as GeoJSON.GeoJsonObject}
           style={{
-            color: "#8A766B",
+            color: "#94A3B8",
             weight: 1.5,
             dashArray: "4 3",
-            fillColor: "#8A766B",
-            fillOpacity: 0.15,
+            fillColor: "#94A3B8",
+            fillOpacity: 0.12,
           }}
           onEachFeature={(feature, layer) => {
             const p = feature.properties ?? {};
