@@ -45,26 +45,21 @@ body {
 
 /* Leaflet container & tile styling */
 .leaflet-container {
-  background: #0B132B !important;
+  background: #BAE6FD !important;
   font-family: "Inter", sans-serif;
 }
 
-/* Custom dark ocean canvas filter for OSM fallback if needed */
-.dark-ocean-canvas .leaflet-tile-pane {
-  filter: brightness(0.65) invert(1) contrast(2.2) hue-rotate(200deg) saturate(0.4) brightness(0.75);
+/* Clean bright tile styling */
+.leaflet-tile-pane {
+  filter: saturate(0.9) brightness(1.05) contrast(0.96);
 }
 
 .leaflet-control-attribution {
-  background: rgba(15, 23, 42, 0.85) !important;
-  color: #94A3B8 !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #475569 !important;
+  border: 1px solid #E2E8F0 !important;
   border-radius: 4px;
   font-size: 10px !important;
-  backdrop-filter: blur(4px);
-}
-.leaflet-control-attribution a {
-  color: #38BDF8 !important;
-  font-size: 10px;
 }
 .leaflet-control-attribution a {
   color: #0891B2 !important;

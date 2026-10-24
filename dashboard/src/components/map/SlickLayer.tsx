@@ -19,25 +19,17 @@ export default function SlickLayer({ slick, lookalikes, showLookalikes }: SlickL
           key="slick"
           data={slick as unknown as GeoJSON.GeoJsonObject}
           style={{
-            color: "#EF4444",
-            weight: 2.5,
-            fillColor: "#7F1D1D",
-            fillOpacity: 0.55,
+            color: "#DC2626",
+            weight: 2,
+            fillColor: "#DC2626",
+            fillOpacity: 0.35,
           }}
           onEachFeature={(feature, layer) => {
             const p = feature.properties ?? {};
             layer.bindPopup(
-              `<div style="font-family: 'IBM Plex Mono', monospace; min-width: 200px;">
-                <div style="font-size: 12px; font-weight: bold; color: #DC2626; border-bottom: 1px solid #FECACA; padding-bottom: 4px; margin-bottom: 6px;">
-                  🛑 Confirmed SAR Oil Slick
-                </div>
-                <div style="font-size: 11px; line-height: 1.6; color: #1E293B;">
-                  <strong>Area:</strong> ${p.areaKm2 ?? 18.4} km²<br/>
-                  <strong>CV Confidence:</strong> ${((p.confidence ?? 0.94) * 100).toFixed(0)}%<br/>
-                  <strong>Backscatter:</strong> -14.2 dB (High attenuation)<br/>
-                  <strong>Status:</strong> Active Surface Discharge
-                </div>
-              </div>`
+              `<strong>Confirmed Oil Slick</strong><br/>Area: ${p.areaKm2} km²<br/>Confidence: ${(
+                (p.confidence ?? 0) * 100
+              ).toFixed(0)}%`
             );
           }}
         />

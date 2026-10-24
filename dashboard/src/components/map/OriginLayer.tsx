@@ -41,35 +41,20 @@ export default function OriginLayer({ origin }: OriginLayerProps) {
         }}
       />
 
-      {/* Outer Radiating Sonar Wave */}
-      <CircleMarker
-        center={[centerLat, centerLon]}
-        radius={26}
-        pathOptions={{
-          color: "#F59E0B",
-          fillColor: "#F59E0B",
-          fillOpacity: 0.12,
-          weight: 1.5,
-          dashArray: "5 5",
-        }}
-      />
-
       {/* Radar Center Ping Circle */}
       <CircleMarker
         center={[centerLat, centerLon]}
-        radius={11}
+        radius={12}
         pathOptions={{
-          color: "#FFFFFF",
+          color: "#EF4444",
           fillColor: "#EF4444",
-          fillOpacity: 0.75,
+          fillOpacity: 0.4,
           weight: 2,
+          dashArray: "3 3",
         }}
       >
-        <Tooltip permanent direction="top" offset={[0, -12]} opacity={0.95}>
-          <div className="flex items-center gap-1.5 rounded bg-slate-950/90 border border-amber-500/80 px-2 py-0.5 text-[10px] font-mono font-bold text-amber-300 shadow-xl backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping inline-block" />
-            <span>🎯 HINDCAST ORIGIN (T-6.2h)</span>
-          </div>
+        <Tooltip permanent direction="top" offset={[0, -10]}>
+          <span className="font-mono text-[10px] font-bold text-danger">🎯 Estimated Discharge Origin</span>
         </Tooltip>
       </CircleMarker>
     </>
