@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from services.image_processor import analyze_sar_image
+from services.hindcast_engine import run_backward_hindcast
 import time
 
 # Configuration Mode:
@@ -46,8 +47,8 @@ ais_stats = {
 VESSEL_TTL_SECONDS = 15 * 60
 MAX_VESSELS_SAFETY_CAP = 1000  # Generous safety ceiling to prevent unbounded RAM usage
 
-# Bounding box for test area (Global ingestion for live AISstream traffic)
-AOI_BOUNDING_BOX = [[[-90.0, -180.0], [90.0, 180.0]]]
+# Bounding box for Area of Interest: Arabian Sea Konkan sector (around 17.3° N, 71.9° E)
+AOI_BOUNDING_BOX = [[[15.0, 69.0], [19.5, 74.5]]]
 ORIGIN_LAT = 17.15
 ORIGIN_LON = 71.95
 
@@ -241,10 +242,10 @@ def load_historical_tracks():
 # ---------------------------------------------------------------------------
 # Attribution Intelligence Layer: Calculate proximity and suspicion score
 # ---------------------------------------------------------------------------
-def analyze_suspects(vessel_tracks):
+def analyze_suspects(vessel_tracks, origin_lat=ORIGIN_LAT, origin_lon=ORIGIN_LON):
     suspects_list = []
     
-    # Calculate simple distance (Euclidean approximation for demo coordinates)
+    # Calculate distance using nautical geometry
     # 1 degree lat = 60 nm, 1 degree lon = 60 * cos(lat) nm
     import math
     
@@ -258,8 +259,8 @@ def analyze_suspects(vessel_tracks):
         
         # Calculate closest approach to estimated origin zone
         for pt in track_pts:
-            d_lat = (pt["lat"] - ORIGIN_LAT) * 60.0
-            d_lon = (pt["lon"] - ORIGIN_LON) * 60.0 * math.cos(math.radians(ORIGIN_LAT))
+            d_lat = (pt["lat"] - origin_lat) * 60.0
+            d_lon = (pt["lon"] - origin_lon) * 60.0 * math.cos(math.radians(origin_lat))
             dist = math.sqrt(d_lat**2 + d_lon**2)
             
             if dist < min_dist_nm:
@@ -376,6 +377,18 @@ async def analyze_image_endpoint(file: Optional[UploadFile] = File(None)):
         
     return analysis
 
+@app.post("/api/run-hindcast")
+def hindcast_endpoint(payload: Optional[dict] = None):
+    """
+    Simulates ocean leeway backward drift physics from detected slick centroid.
+    Returns calculated origin zone, release window, and backward vector.
+    """
+    data = payload or {}
+    lat = float(data.get("lat", ORIGIN_LAT))
+    lon = float(data.get("lon", ORIGIN_LON))
+    hours = float(data.get("hoursBack", 6.5))
+    return run_backward_hindcast(lat, lon, hours_back=hours)
+
 @app.post("/api/run-pipeline")
 def run_pipeline():
     # 1. Run real OpenCV SAR Image Analysis
@@ -450,7 +463,34 @@ def run_pipeline():
     else:
         vessel_tracks = load_historical_tracks()
             
-    sus_list = analyze_suspects(vessel_tracks)
+    # 2. Run real Ocean Backward Drift (Hindcasting) Physics
+    centroid = sar_results["summary"]["centroid"] if (sar_results and sar_results.get("summary")) else {"lat": ORIGIN_LAT, "lon": ORIGIN_LON}
+    hindcast = run_backward_hindcast(centroid["lat"], centroid["lon"], hours_back=6.5)
+    origin_center = hindcast["originCenter"]
+
+    # Filter vessels: ONLY keep vessels passing in the vicinity of the spill (within 40 nm of origin)
+    nearby_vessels = []
+    for vt in vessel_tracks:
+        if vt.get("points"):
+            min_d = min(
+                math.hypot(
+                    (pt["lat"] - origin_center["lat"]) * 60.0,
+                    (pt["lon"] - origin_center["lon"]) * 60.0 * math.cos(math.radians(origin_center["lat"]))
+                )
+                for pt in vt["points"]
+            )
+            if min_d <= 40.0:
+                nearby_vessels.append(vt)
+
+    # Ensure baseline suspects are included if live stream in that specific 40nm box is quiet
+    if len(nearby_vessels) < 3:
+        hist = load_historical_tracks()
+        for h in hist:
+            if not any(v["mmsi"] == h["mmsi"] for v in nearby_vessels):
+                nearby_vessels.append(h)
+
+    vessel_tracks = nearby_vessels
+    sus_list = analyze_suspects(vessel_tracks, origin_lat=origin_center["lat"], origin_lon=origin_center["lon"])
     
     # Rebuild the LineString feature collection for vessel tracks on map
     track_features = []
@@ -549,16 +589,12 @@ def run_pipeline():
                 }
             ]
         },
-        "origin": {
-            "type": "FeatureCollection",
-            "features": [{
-                "type": "Feature",
-                "properties": {"id": "origin-zone", "estimatedReleaseTime": "2026-08-30T12:00:00Z", "method": "backward_hindcast_hycom"},
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [[[71.95, 17.2], [72.0, 17.19], [72.01, 17.14], [71.96, 17.12], [71.92, 17.15], [71.95, 17.2]]]
-                }
-            }]
+        "origin": hindcast["originGeoJSON"],
+        "backwardVector": hindcast["backwardVectorGeoJSON"],
+        "hindcastDetails": {
+            "originCenter": hindcast["originCenter"],
+            "releaseWindow": hindcast["releaseWindow"],
+            "driftParameters": hindcast["driftParameters"]
         },
         # Drifting forecast slices
         "forecast": [

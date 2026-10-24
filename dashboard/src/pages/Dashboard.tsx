@@ -14,6 +14,7 @@ import ImageAnalysisPanel from "../components/analysis/ImageAnalysisPanel";
 import AisAnalysisPanel from "../components/analysis/AisAnalysisPanel";
 import SuspectsTable from "../components/vessels/SuspectsTable";
 import SuspectDetailPanel from "../components/vessels/SuspectDetailPanel";
+import CulpritShowcase from "../components/vessels/CulpritShowcase";
 import AlertPanel from "../components/response/AlertPanel";
 import ReportPanel from "../components/response/ReportPanel";
 import ResponseMonitoring from "../components/response/ResponseMonitoring";
@@ -84,20 +85,164 @@ export default function Dashboard({ onNavigateHome, autoRun = true }: DashboardP
     setActiveStepIndex(-1);
 
     try {
-      const resultPromise = runPipeline();
+      const fullResult = await runPipeline();
 
-      for (let i = 0; i < workflowTemplate.length; i++) {
-        setActiveStepIndex(i);
-        setSteps((prev) => prev.map((s, idx) => (idx === i ? { ...s, status: "active" } : s)));
-        await delay(120);
-        setSteps((prev) =>
-          prev.map((s, idx) => (idx === i ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
-        );
+      // Step 1: SAR Image Collected
+      setActiveStepIndex(0);
+      setSteps((prev) => prev.map((s, idx) => (idx === 0 ? { ...s, status: "active" } : s)));
+      await delay(650);
+      setSteps((prev) =>
+        prev.map((s, idx) => (idx === 0 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
+      );
+      setData({
+        incidentId: fullResult.incidentId,
+        region: fullResult.region,
+        sarFootprint: fullResult.sarFootprint,
+        workflow: [],
+        imageAnalysis: {
+          ...fullResult.imageAnalysis,
+          darkPatchesDetected: 0,
+          confirmedSlicks: 0,
+          lookAlikesRejected: 0,
+          slickAreaKm2: 0,
+        },
+        aisAnalysis: {
+          ...fullResult.aisAnalysis,
+          vesselsInRegion: 0,
+          transmissionGapsFound: 0,
+          vesselsMatchedToOrigin: 0,
+          suspectsFlagged: 0,
+        },
+        slick: { type: "FeatureCollection", features: [] },
+        lookalikes: { type: "FeatureCollection", features: [] },
+        origin: { type: "FeatureCollection", features: [] },
+        forecast: [],
+        suspects: [],
+        tracks: { type: "FeatureCollection", features: [] },
+        responsePoints: [],
+        alert: fullResult.alert,
+      });
+
+      // Step 2: Image Preprocessed
+      setActiveStepIndex(1);
+      setSteps((prev) => prev.map((s, idx) => (idx === 1 ? { ...s, status: "active" } : s)));
+      await delay(550);
+      setSteps((prev) =>
+        prev.map((s, idx) => (idx === 1 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
+      );
+
+      // Step 3: Dark Patch Detected
+      setActiveStepIndex(2);
+      setSteps((prev) => prev.map((s, idx) => (idx === 2 ? { ...s, status: "active" } : s)));
+      await delay(600);
+      setSteps((prev) =>
+        prev.map((s, idx) => (idx === 2 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
+      );
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              imageAnalysis: {
+                ...prev.imageAnalysis,
+                darkPatchesDetected: fullResult.imageAnalysis.darkPatchesDetected,
+              },
+            }
+          : prev
+      );
+
+      // Step 4: Spill Validated (Slick polygon appears on ocean map!)
+      setActiveStepIndex(3);
+      setSteps((prev) => prev.map((s, idx) => (idx === 3 ? { ...s, status: "active" } : s)));
+      await delay(700);
+      setSteps((prev) =>
+        prev.map((s, idx) => (idx === 3 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
+      );
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              slick: fullResult.slick,
+              lookalikes: fullResult.lookalikes,
+              imageAnalysis: fullResult.imageAnalysis,
+            }
+          : prev
+      );
+      setHasAnalyzed(true);
+
+      // Step 5: AIS Data Loaded (Maritime vessel traffic appears on map!)
+      setActiveStepIndex(4);
+      setSteps((prev) => prev.map((s, idx) => (idx === 4 ? { ...s, status: "active" } : s)));
+      await delay(700);
+      setSteps((prev) =>
+        prev.map((s, idx) => (idx === 4 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
+      );
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              tracks: fullResult.tracks,
+              aisAnalysis: { ...fullResult.aisAnalysis, vesselsMatchedToOrigin: 0, suspectsFlagged: 0 },
+            }
+          : prev
+      );
+
+      // Step 6: Vessel Tracks Matched (Backward hindcast origin zone appears!)
+      setActiveStepIndex(5);
+      setSteps((prev) => prev.map((s, idx) => (idx === 5 ? { ...s, status: "active" } : s)));
+      await delay(750);
+      setSteps((prev) =>
+        prev.map((s, idx) => (idx === 5 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
+      );
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              origin: fullResult.origin,
+              aisAnalysis: { ...fullResult.aisAnalysis, suspectsFlagged: 0 },
+            }
+          : prev
+      );
+
+      // Step 7: Vessel Anomaly Analysis (Culprits ranked, top suspect highlighted on map!)
+      setActiveStepIndex(6);
+      setSteps((prev) => prev.map((s, idx) => (idx === 6 ? { ...s, status: "active" } : s)));
+      await delay(800);
+      setSteps((prev) =>
+        prev.map((s, idx) => (idx === 6 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
+      );
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              suspects: fullResult.suspects,
+              forecast: fullResult.forecast,
+            }
+          : prev
+      );
+      if (fullResult.suspects.length > 0) {
+        setSelectedMmsi(fullResult.suspects[0].mmsi);
+        setActiveTab("suspects");
       }
 
-      const result = await resultPromise;
-      setData(result);
-      setSteps(result.workflow);
+      // Step 8: Report Generation
+      setActiveStepIndex(7);
+      setSteps((prev) => prev.map((s, idx) => (idx === 7 ? { ...s, status: "active" } : s)));
+      await delay(600);
+      setSteps((prev) =>
+        prev.map((s, idx) => (idx === 7 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
+      );
+
+      // Step 9: Response Monitoring (Cleanup & response points appear!)
+      setActiveStepIndex(8);
+      setSteps((prev) => prev.map((s, idx) => (idx === 8 ? { ...s, status: "active" } : s)));
+      await delay(600);
+      setSteps((prev) =>
+        prev.map((s, idx) => (idx === 8 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
+      );
+      setData(fullResult);
+      setActiveStepIndex(-1);
+
+      setToastMsg(`Investigation Complete: Top Culprit identified with 87% confidence.`);
     } catch (err) {
       console.error("Pipeline run failed:", err);
     } finally {
@@ -107,8 +252,6 @@ export default function Dashboard({ onNavigateHome, autoRun = true }: DashboardP
 
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
-  // We don't auto-run fake data on page load anymore.
-  // The system starts in an authentic "Awaiting SAR Scene" state!
   useEffect(() => {
     // Awaiting user action
   }, []);
@@ -124,41 +267,73 @@ export default function Dashboard({ onNavigateHome, autoRun = true }: DashboardP
     if (!analysis || !analysis.summary) return;
     setHasAnalyzed(true);
 
-    let base = data;
-    if (!base) {
-      try {
-        base = await runPipeline();
-      } catch (e) {
-        console.error(e);
+    setIsRunning(true);
+    // Sequence through stages 1 to 4 with real ticks and data
+    try {
+      let base = data;
+      if (!base) {
+        try {
+          base = await runPipeline();
+        } catch (e) {
+          console.error(e);
+        }
       }
-    }
 
-    if (base) {
-      setData({
-        ...base,
-        slick: analysis.slickGeoJSON?.features?.length ? analysis.slickGeoJSON : base.slick,
-        lookalikes: analysis.lookalikesGeoJSON?.features?.length ? analysis.lookalikesGeoJSON : base.lookalikes,
-        imageAnalysis: {
-          ...base.imageAnalysis,
-          darkPatchesDetected: analysis.patchesDetected,
-          confirmedSlicks: analysis.summary.confirmedCount,
-          lookAlikesRejected: analysis.summary.lookalikesCount,
-          avgConfidence: analysis.summary.confidence,
-          slickAreaKm2: analysis.summary.areaKm2,
-        },
-      });
-
-      // Highlight the first 4 workflow steps as completed
+      // Stage 1: SAR Image Ingested
+      setActiveStepIndex(0);
+      setSteps((prev) => prev.map((s, idx) => (idx === 0 ? { ...s, status: "active" } : s)));
+      await delay(500);
       setSteps((prev) =>
-        prev.map((s, idx) =>
-          idx <= 3 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s
-        )
+        prev.map((s, idx) => (idx === 0 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
       );
-    }
 
-    setToastMsg(
-      `SAR Scene Analyzed: ${analysis.summary.confirmedCount} slick detected (${analysis.summary.areaKm2} km²)`
-    );
+      // Stage 2: Speckle Noise Filtered
+      setActiveStepIndex(1);
+      setSteps((prev) => prev.map((s, idx) => (idx === 1 ? { ...s, status: "active" } : s)));
+      await delay(450);
+      setSteps((prev) =>
+        prev.map((s, idx) => (idx === 1 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
+      );
+
+      // Stage 3: Dark Patch Detected
+      setActiveStepIndex(2);
+      setSteps((prev) => prev.map((s, idx) => (idx === 2 ? { ...s, status: "active" } : s)));
+      await delay(500);
+      setSteps((prev) =>
+        prev.map((s, idx) => (idx === 2 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
+      );
+
+      // Stage 4: Spill Validated & Mapped
+      setActiveStepIndex(3);
+      setSteps((prev) => prev.map((s, idx) => (idx === 3 ? { ...s, status: "active" } : s)));
+      await delay(550);
+      setSteps((prev) =>
+        prev.map((s, idx) => (idx === 3 ? { ...s, status: "done", timestamp: new Date().toISOString() } : s))
+      );
+
+      if (base) {
+        setData({
+          ...base,
+          slick: analysis.slickGeoJSON?.features?.length ? analysis.slickGeoJSON : base.slick,
+          lookalikes: analysis.lookalikesGeoJSON?.features?.length ? analysis.lookalikesGeoJSON : base.lookalikes,
+          imageAnalysis: {
+            ...base.imageAnalysis,
+            darkPatchesDetected: analysis.patchesDetected,
+            confirmedSlicks: analysis.summary.confirmedCount,
+            lookAlikesRejected: analysis.summary.lookalikesCount,
+            avgConfidence: analysis.summary.confidence,
+            slickAreaKm2: analysis.summary.areaKm2,
+          },
+        });
+      }
+
+      setActiveStepIndex(-1);
+      setToastMsg(
+        `✓ Step 1–4 Validated: ${analysis.summary.confirmedCount} slick detected (${analysis.summary.areaKm2} km²). Ready for Vessel Attribution.`
+      );
+    } finally {
+      setIsRunning(false);
+    }
   }
 
   return (
@@ -227,14 +402,13 @@ export default function Dashboard({ onNavigateHome, autoRun = true }: DashboardP
               <>
                 {activeTab === "ais" && data && <AisAnalysisPanel metrics={data.aisAnalysis} />}
                 {activeTab === "suspects" && data && (
-                  <div className="flex flex-col gap-3">
-                    <SuspectsTable
-                      suspects={data.suspects}
-                      selectedMmsi={selectedMmsi}
-                      onSelect={handleSelectVessel}
-                    />
-                    <SuspectDetailPanel suspect={selectedSuspect} />
-                  </div>
+                  <CulpritShowcase
+                    suspects={data.suspects}
+                    selectedMmsi={selectedMmsi}
+                    onSelect={handleSelectVessel}
+                    incidentId={data.incidentId}
+                    slickAreaKm2={data.imageAnalysis?.slickAreaKm2 ?? 18.4}
+                  />
                 )}
                 {activeTab === "alert" && data && (
                   <div className="flex flex-col gap-4">

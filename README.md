@@ -1,231 +1,142 @@
-# Marine Oil Spill Investigation Dashboard – Frontend
+# JalDrishti (जलदृष्टि) — Ocean Oil Spill Intelligence & Forensic Attribution Platform
 
-Smart India Hackathon 2026 – Frontend Repository (React + TypeScript + Leaflet)
+> **Smart India Hackathon (SIH 2026)**  
+> **Tagline:** Detect. Trace. Attribute.  
+> **Core Mission:** Automated spaceborne oil spill detection, hydrodynamic origin hindcasting, and explainable AIS vessel culprit attribution.
 
-## Overview
+---
 
-This repository contains the **frontend only** for a Marine Oil Spill Investigation Dashboard. The system helps analysts:
+## 🌊 Overview
 
-- Detect oil slicks from SAR satellite imagery  
-- Hindcast the likely origin and forecast future drift  
-- Attribute the spill to vessels using AIS data  
-- Generate incident reports and simulated alerts  
-- Monitor spill response activities  
+**JalDrishti** is an end-to-end maritime intelligence platform designed for Coast Guards, maritime surveillance agencies, and environmental regulators. While conventional satellite systems only show where an oil spill has drifted, **JalDrishti answers the hardest question: "Who dumped it, and where is the proof?"**
 
-The backend (ML models, drift simulation, AIS processing) is **mocked** in this frontend demo.
+The system bridges Synthetic Aperture Radar (SAR) computer vision with hydrodynamic backward drift modeling and real-time maritime AIS telemetry to identify culprit vessels with court-admissible forensic evidence.
 
-***
+---
 
-## Features
+## 🚀 Key Features
 
-- Interactive map (Leaflet) with layers for:
-  - SAR image footprint
-  - Detected dark patches
-  - Confirmed oil slick polygon
-  - Look-alike regions (rejected)
-  - Hindcast origin zone
-  - Time-animated forecast plume
-  - AIS vessel tracks (normal + suspects highlighted)
-  - Response/cleanup points (demo)
-- Step-by-step investigation workflow panel:
-  - SAR Image Collected
-  - Image Preprocessed
-  - Dark Patch Detected
-  - Spill Validated
-  - AIS Data Loaded
-  - Vessel Tracks Matched
-  - Vessel Anomaly Analysis
-  - Report Generation
-  - Response Monitoring
-- Analysis panels:
-  - Image analysis metrics (patches, confidence, look-alikes)
-  - AIS analysis metrics (vessels, gaps, matches)
-  - Ranked suspect table with evidence
-  - Suspect detail view (track, speed, course, anomalies)
-  - Alert & report generation (simulated)
-  - Response monitoring (forecast vs observed, cleanup points)
-- Timeline slider to animate forecast and AIS tracks over time.
+### 1. Spaceborne SAR Ingestion & Computer Vision (`backend/services/image_processor.py`)
+* **Real OpenCV Denoising & Segmentation:** Removes radar speckle noise using median filtering and segments low-backscatter oil patches via adaptive Otsu binarization.
+* **Morphological Analysis:** Automatically extracts surface area ($\text{km}^2$), perimeter, centroid coordinates ($\text{Lat}, \text{Lon}$), and orientation axis.
+* **Look-Alike Suppression:** Evaluates contrast ratios and geometric aspect ratios to distinguish real petroleum slicks from natural look-alikes (algal blooms, low-wind calm sea).
+* **3 Pre-calibrated Benchmark Scenes:** Includes preloaded radar scenes for major spills, turning vessels, and natural look-alikes.
 
-***
+### 2. Hydrodynamic Drift Hindcasting (Reverse Tracking)
+* Reverses ocean wind and current vectors backwards in time (4–8 hours prior to satellite overpass) to pinpoint the exact **Discharge Origin Zone** and release time window.
 
-## Tech Stack
+### 3. Live Global AIS Telemetry Streaming (`AISstream.io`)
+* Live WebSocket connection to `stream.aisstream.io` ingesting real-time vessel positions globally.
+* Intelligent **40-nautical-mile spatial proximity filter** centered on the spill origin to focus strictly on relevant maritime corridor traffic.
 
-- **Framework:** React 18 + Vite  
-- **Language:** TypeScript  
-- **Styling:** Tailwind CSS  
-- **Maps:** Leaflet + react-leaflet  
-- **HTTP client:** Axios (mocked API calls)  
-- **State management:** React Context + local state  
+### 4. The "Showstopper" Culprit Attribution Engine (`CulpritShowcase.tsx`)
+* **Dynamic Scoring Algorithm (0–99%):** Evaluates vessels on nautical Euclidean proximity, temporal overlap, speed variations, and transponder blackout duration.
+* **Featured #1 Culprit Card:** Highlights the primary suspect (e.g. `MT AZURE HORIZON`, 87–99% match) with 3 undeniable forensic proofs:
+  1. 📍 **Spatiotemporal Intersection:** Passed within $0.8\text{ nm}$ of origin during the active spill window.
+  2. 📡 **AIS "Dark Window" Blackout:** Transponder silence for 42 minutes over the discharge coordinates.
+  3. 📉 **Speed & Course Anomaly:** Sudden deceleration from $14.2\text{ kn} \to 4.1\text{ kn}$ (bilge pumping rate).
+* **Cleared Secondary Vessels:** Compact cards showing why neighboring ships were cleared of suspicion.
 
-***
+### 5. 1-Click Legal Evidence Dossier
+* Generates an official, printable **Marine Spill Legal Attribution Brief** formatted for Coast Guard enforcement and Port State Control (PSC) detention orders.
 
-## Prerequisites
+### 6. Interactive Geospatial Console (Leaflet)
+* Rendered on OpenStreetMap basemaps with high-contrast tactical styling.
+* Real-time animated dashed trajectories on suspect vessels, pulsing radar origin ping markers, and time-scrubbed drift animation.
 
-- Node.js 18+  
-- npm or yarn  
+---
 
-***
+## 🛠️ Technology Stack
 
-## Installation
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend Framework** | React 18, TypeScript, Vite |
+| **Styling** | Tailwind CSS, Plus Jakarta Sans, JetBrains Mono |
+| **Interactive Maps** | Leaflet, React-Leaflet, GeoJSON (RFC 7946) |
+| **Backend API** | Python 3.14, FastAPI, Uvicorn (Asynchronous REST API) |
+| **Computer Vision** | OpenCV (`cv2`), NumPy, SciPy |
+| **Maritime Streaming** | AISstream.io WebSockets, NOAA/DMA Historical Datasets |
 
+---
+
+## 📂 Project Architecture
+
+```
+JalDrishti/
+├── backend/                        # FastAPI Python Backend
+│   ├── data/                       # Benchmark scenes & maritime AIS samples
+│   ├── services/
+│   │   ├── image_processor.py      # OpenCV SAR segmentation & contour analysis
+│   │   └── hindcast_engine.py      # Hydrodynamic backward drift simulation
+│   ├── main.py                     # REST endpoints & AISstream WebSocket listener
+│   └── requirements.txt            # Python dependencies
+├── dashboard/                      # React 18 + Vite Frontend Application
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── analysis/           # Image & AIS analysis panels
+│   │   │   ├── map/                # Leaflet layers (Slick, Origin, AIS tracks)
+│   │   │   ├── vessels/            # CulpritShowcase & evidence cards
+│   │   │   └── workflow/           # Sequential stepper pipeline
+│   │   ├── pages/
+│   │   │   ├── Dashboard.tsx       # Main investigation console
+│   │   │   └── LandingPage.tsx     # JalDrishti portal & intro
+│   │   └── App.tsx                 # Unified routing between portal & dashboard
+│   ├── package.json
+│   └── vite.config.ts
+├── idea.md                         # Detailed project technical idea & architecture
+├── pitch.md                        # Presentation scripts & judge Q&A guide
+└── README.md
+```
+
+---
+
+## ⚡ Quick Start & Installation
+
+### Prerequisites
+* **Node.js 18+** & **npm**
+* **Python 3.10+** (Python 3.14 supported)
+
+### 1. Clone & Setup Backend
 ```bash
-# Clone the repository
-git clone <your-repo-url>
-cd marine-oil-spill-frontend
+# Navigate to backend
+cd backend
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# (Optional) Add your free AISstream.io API key in backend/.env
+# AISSTREAM_API_KEY=your_key_here
+
+# Launch FastAPI backend (Port 8000)
+python -m uvicorn main:app --port 8000 --host 127.0.0.1
+```
+
+### 2. Setup & Launch Frontend
+In a new terminal:
+```bash
+# Navigate to dashboard
+cd dashboard
 
 # Install dependencies
 npm install
-```
 
-***
-
-## Development
-
-```bash
-# Start development server
+# Start Vite dev server (Port 5173)
 npm run dev
 ```
 
-Open the URL shown in the terminal (usually `http://localhost:5173`) in your browser.
+### 3. Open in Browser
+Visit **[http://localhost:5173/#dashboard](http://localhost:5173/#dashboard)** to open the Investigation Console.  
+Visit **[http://localhost:5173/](http://localhost:5173/)** to view the Landing Page Portal.
 
-***
+---
 
-## Build for Production
+## 🎯 Presentation & Demonstration Guide
 
-```bash
-# Create production build
-npm run build
+* Check out [pitch.md](pitch.md) for the **30-second elevator pitch**, **2-minute stage pitch**, and **click-by-click live demo script**.
+* Check out [idea.md](idea.md) for the **comprehensive technical architecture and mathematical formulas**.
 
-# Preview production build locally
-npm run preview
-```
+---
 
-The built files will be in the `dist/` directory.
+## 📜 Legal & Compliance Notice
 
-***
-
-## Project Structure
-
-```text
-src/
-  main.tsx
-  App.tsx
-
-  pages/
-    Dashboard.tsx
-
-  components/
-    layout/
-      TopBar.tsx
-      Sidebar.tsx
-
-    workflow/
-      WorkflowStepper.tsx
-      StepStatus.tsx
-
-    map/
-      MapView.tsx
-      SlickLayer.tsx
-      LookAlikeLayer.tsx
-      OriginLayer.tsx
-      ForecastLayer.tsx
-      AisTracksLayer.tsx
-      ResponseLayer.tsx
-
-    analysis/
-      ImageAnalysisPanel.tsx
-      AisAnalysisPanel.tsx
-      EvidencePanel.tsx
-      MetricsCards.tsx
-
-    vessels/
-      SuspectsTable.tsx
-      SuspectDetailPanel.tsx
-      VesselTrackChart.tsx
-
-    response/
-      AlertPanel.tsx
-      ReportPanel.tsx
-      ResponseMonitoring.tsx
-
-    timeline/
-      TimelineSlider.tsx
-
-  api/
-    client.ts
-
-  data/
-    mockData.ts
-
-  context/
-    InvestigationContext.tsx
-
-  utils/
-    geoHelpers.ts
-    formatters.ts
-
-  index.css
-  vite-env.d.ts
-```
-
-***
-
-## Mock API
-
-All API calls are mocked in `src/api/client.ts`. The main endpoint is:
-
-```text
-POST /api/run-pipeline
-```
-
-It returns a single JSON object containing:
-
-- `incident_id`
-- `workflow` status flags
-- `slick` GeoJSON
-- `lookalikes` GeoJSON
-- `origin` GeoJSON
-- `forecast` GeoJSON (time-sliced)
-- `suspects` array (with score, distance, evidence, etc.)
-- `tracks` GeoJSON
-- `alert` info
-
-To integrate a real backend later, replace the mock implementation in `client.ts` with real HTTP calls.
-
-***
-
-## Usage Flow (Demo)
-
-1. Open the app in the browser.  
-2. Click **“Run Pipeline”** (or it can auto-run on load).  
-3. Watch the workflow steps turn green as each stage “completes”.  
-4. Explore:
-   - Slick polygon and look-alikes on the map  
-   - Origin zone and forecast plume  
-   - AIS tracks and highlighted suspect vessels  
-5. Click a suspect in the table to:
-   - Highlight its track on the map  
-   - View detailed evidence and behavior metrics  
-6. Click **“Generate Report”** to see a summary modal.  
-7. Click **“Submit Alert”** to simulate sending an alert.  
-8. Use the **timeline slider** to animate forecast and vessel movement.  
-
-***
-
-## Configuration
-
-- Tailwind configuration: `tailwind.config.js`  
-- Vite configuration: `vite.config.ts`  
-- Environment variables (if needed later): `.env` (not required for the mock demo)  
-
-***
-
-
-
-***
-
-## License
-
-This frontend is created for Smart India Hackathon 2026. Use and adapt as needed for your team’s submission.
-
-***
+This platform is designed to generate forensic investigative intelligence to support maritime authorities. In compliance with MARPOL Annex I regulations, legal vessel attribution requires physical chemical fingerprinting (GC-MS) of bilge residue to complement spatiotemporal AIS correlation.

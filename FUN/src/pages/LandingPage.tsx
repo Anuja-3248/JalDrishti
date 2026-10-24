@@ -201,9 +201,6 @@ export default function LandingPage({ onLaunchDashboard }: LandingPageProps) {
         {/* Hero Content */}
         <div className="container" style={{ position: "relative", zIndex: 10, paddingTop: "6rem", paddingBottom: "4rem" }}>
           <div className="hero-content" style={{ maxWidth: "760px" }}>
-            <div className="section-label" style={{ marginBottom: "1.5rem" }}>
-              <i className="fa-solid fa-satellite"></i> Smart Maritime Surveillance System
-            </div>
             <h1 className="hero-h1">
               Protecting Our Oceans<br />
               with <span className="gradient-word">Intelligent Technology</span>

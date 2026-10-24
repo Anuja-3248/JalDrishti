@@ -22,6 +22,8 @@ export default function AisTracksLayer({
   selectedMmsi,
   onSelectVessel,
 }: AisTracksLayerProps) {
+  if (!tracks || !tracks.features || tracks.features.length === 0) return null;
+
   const suspectMap = new Map(suspects.map((s) => [s.mmsi, s]));
 
   return (
@@ -41,15 +43,16 @@ export default function AisTracksLayer({
         const suspect = suspectMap.get(mmsi);
         const head = latlngs[latlngs.length - 1];
 
-        const color = isSuspect ? "#C53B3B" : "#267E7E";
-        const weight = isSelected ? 3.5 : isSuspect ? 2.4 : 1.4;
-        const opacity = isSuspect || isSelected ? 0.95 : 0.55;
+        const color = isSelected ? "#EF4444" : isSuspect ? "#F59E0B" : "#06B6D4";
+        const weight = isSelected ? 4 : isSuspect ? 2.8 : 1.5;
+        const opacity = isSelected ? 1.0 : isSuspect ? 0.85 : 0.45;
+        const dashArray = isSelected ? "7 4" : undefined;
 
         return (
           <Fragment key={mmsi}>
             <Polyline
               positions={latlngs}
-              pathOptions={{ color, weight, opacity }}
+              pathOptions={{ color, weight, opacity, dashArray }}
               eventHandlers={{ click: () => onSelectVessel(mmsi) }}
             >
               <Tooltip sticky opacity={0.98}>

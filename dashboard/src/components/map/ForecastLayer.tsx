@@ -7,6 +7,8 @@ interface ForecastLayerProps {
 }
 
 export default function ForecastLayer({ forecast, activeHour }: ForecastLayerProps) {
+  if (!forecast || forecast.length === 0) return null;
+
   const active = forecast.reduce((closest, slice) =>
     Math.abs(slice.hoursFromDetection - activeHour) < Math.abs(closest.hoursFromDetection - activeHour)
       ? slice

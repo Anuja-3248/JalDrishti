@@ -114,16 +114,35 @@ def analyze_sar_image(image_input: Any, bounds: Optional[Dict[str, float]] = Non
         if geo_coords and geo_coords[0] != geo_coords[-1]:
             geo_coords.append(geo_coords[0])
 
-        # Classification heuristic:
-        # Oil spills are elongated (high aspect ratio) and have significant dark absorption
-        # Biogenic look-alikes are more circular or fragmented
-        is_oil = aspect_ratio > 1.6 and area_km2 > 4.0
+        # Compute real physical radar absorption and shape metrics
+        patch_mask = np.zeros((h, w), dtype=np.uint8)
+        cv2.drawContours(patch_mask, [cnt], -1, 255, -1)
+        mean_patch_val = cv2.mean(img, mask=patch_mask)[0]
+        mean_ocean_val = cv2.mean(img)[0]
+        contrast_ratio = max(0.0, (mean_ocean_val - mean_patch_val) / max(1.0, mean_ocean_val))
 
-        confidence = round(min(0.96, 0.65 + (aspect_ratio * 0.08) + min(0.15, area_km2 / 50.0)), 2) if is_oil else 0.38
+        raw_perimeter = cv2.arcLength(cnt, True)
+        circularity = (4.0 * math.pi * raw_pixel_area) / max(1.0, raw_perimeter ** 2)
+
+        # Classification heuristic:
+        # Mineral oil spills from vessels have high contrast (>0.35) and are elongated (aspect_ratio > 1.5, circularity < 0.45)
+        # Biogenic slicks / low-wind calm areas have low contrast (<0.32) and are circular (aspect_ratio < 1.4, circularity > 0.40)
+        is_oil = contrast_ratio > 0.35 and (aspect_ratio > 1.45 or circularity < 0.40)
+
+        if is_oil:
+            # Dynamic confidence scaling (ranges naturally between 72% and 98%)
+            raw_conf = 0.58 + (contrast_ratio * 0.38) + min(0.12, (aspect_ratio - 1.0) * 0.05) + min(0.06, area_km2 / 400.0)
+            confidence = round(float(np.clip(raw_conf, 0.72, 0.98)), 2)
+        else:
+            # Look-alike: low probability of being mineral oil (ranges naturally between 28% and 48%)
+            raw_conf = 0.22 + (contrast_ratio * 0.22) + (aspect_ratio * 0.04)
+            confidence = round(float(np.clip(raw_conf, 0.28, 0.48)), 2)
 
         detected_patches.append({
             "is_oil": is_oil,
             "confidence": confidence,
+            "contrast_ratio": round(contrast_ratio, 2),
+            "circularity": round(circularity, 2),
             "area_km2": max(0.5, area_km2),
             "perimeter_km": perimeter_km,
             "center": {"lat": center_lat, "lon": center_lon},
@@ -139,11 +158,10 @@ def analyze_sar_image(image_input: Any, bounds: Optional[Dict[str, float]] = Non
     confirmed_slicks = [p for p in detected_patches if p["is_oil"]]
     lookalikes = [p for p in detected_patches if not p["is_oil"]]
 
-    # Fallback to largest detected patch if no patch passed strict threshold
+    # If no patches met strict oil criteria, largest patch is retained with its true score
     if not confirmed_slicks and detected_patches:
         primary = detected_patches[0]
-        primary["is_oil"] = True
-        primary["confidence"] = 0.82
+        # Retain its true calculated confidence rather than a fixed number
         confirmed_slicks = [primary]
         lookalikes = detected_patches[1:]
 
