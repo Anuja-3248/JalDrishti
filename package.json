@@ -1,0 +1,10 @@
+{
+  "name": "jaldrishti",
+  "version": "1.0.0",
+  "private": true,
+  "description": "JalDrishti - Ocean Oil Spill Intelligence & Forensic Attribution Platform",
+  "scripts": {
+    "build": "cd dashboard && npm install && npm run build",
+    "dev": "cd dashboard && npm run dev"
+  }
+}
