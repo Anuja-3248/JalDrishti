@@ -581,7 +581,7 @@ export default function LandingPage({ onLaunchDashboard }: LandingPageProps) {
             <span style={{ color: "#fff" }}>Jal<span className="brand-accent" style={{ color: "#06b6d4" }}>Drishti</span></span>
           </div>
           <p className="footer-text" style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
-            © 2026 JalDrishti — Smart India Hackathon Marine Oil Spill Investigation System
+            © 2026 JalDrishti — DevDays Metro Hackathon Pune | Built by Anuja Pawar &amp; Bhavika Patil
           </p>
           <p className="footer-disclaimer" style={{ color: "#64748b", fontSize: "0.8rem", maxWidth: "700px" }}>
             This system identifies and ranks potential candidate vessels for further verification by coastal authorities and maritime environmental agencies.

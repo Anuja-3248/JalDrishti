@@ -1,6 +1,8 @@
-# JalDrishti — Official Hackathon & Presentation Pitch Guide
+# JalDrishti — DevDays Metro Hackathon Pune Pitch & Presentation Guide
 
-> **Your ultimate presentation cheat-sheet:** memorizable pitches, click-by-click live demo script, and bulletproof answers to tough evaluator questions.
+> **Event:** DevDays Metro Hackathon Pune  
+> **Team / Built by:** Anuja Pawar & Bhavika Patil  
+> **Your presentation cheat-sheet:** memorizable pitches, click-by-click live demo script, and bulletproof answers to tough evaluator questions.
 
 ---
 

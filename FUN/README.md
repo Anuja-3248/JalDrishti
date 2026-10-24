@@ -1,9 +1,8 @@
 # MARINTEL — Marine Oil Spill Investigation Dashboard
 
-Frontend-only demo for the Smart India Hackathon problem statement: detect oil
+Built by Anuja Pawar & Bhavika Patil for DevDays Metro Hackathon Pune: detect oil
 spills from SAR imagery, hindcast/forecast drift, and attribute spills to
-vessels using AIS data. All API responses are mocked locally — there is no
-backend, ML model, or authentication in this repo.
+vessels using AIS data.
 
 ## Stack
 

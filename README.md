@@ -1,6 +1,7 @@
 # JalDrishti (जलदृष्टि) — Ocean Oil Spill Intelligence & Forensic Attribution Platform
 
-> **Smart India Hackathon (SIH 2026)**  
+> **DevDays Metro Hackathon Pune**  
+> **Built by:** Anuja Pawar & Bhavika Patil  
 > **Tagline:** Detect. Trace. Attribute.  
 > **Core Mission:** Automated spaceborne oil spill detection, hydrodynamic origin hindcasting, and explainable AIS vessel culprit attribution.
 
@@ -140,3 +141,13 @@ Visit **[http://localhost:5173/](http://localhost:5173/)** to view the Landing P
 ## 📜 Legal & Compliance Notice
 
 This platform is designed to generate forensic investigative intelligence to support maritime authorities. In compliance with MARPOL Annex I regulations, legal vessel attribution requires physical chemical fingerprinting (GC-MS) of bilge residue to complement spatiotemporal AIS correlation.
+
+---
+
+## 👥 Authors & Hackathon Credits
+
+* **Event:** DevDays Metro Hackathon Pune
+* **Created & Built by:**
+  * **Anuja Pawar**
+  * **Bhavika Patil**
+* **Project:** JalDrishti (जलदृष्टि) — Marine Oil Spill Intelligence & Attribution Platform

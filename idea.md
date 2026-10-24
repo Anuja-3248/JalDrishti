@@ -1,5 +1,7 @@
 # JalDrishti (जलदृष्टि) — Comprehensive Project Architecture & Technical Idea
 
+> **DevDays Metro Hackathon Pune**  
+> **Built by:** Anuja Pawar & Bhavika Patil  
 > **"Detect. Trace. Attribute."**  
 > An AI-Powered Ocean Intelligence & Maritime Forensic Platform for Rapid Oil Spill Detection, Hydrodynamic Origin Hindcasting, and AIS Vessel Culprit Attribution.
 
