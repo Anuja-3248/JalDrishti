@@ -15,10 +15,10 @@ interface MapViewProps {
 }
 
 const responseColor: Record<string, string> = {
-  vessel: "#0891B2",
-  boom: "#D97706",
-  skimmer: "#2563EB",
-  sample: "#7C3AED",
+  vessel: "#267E7E",
+  boom: "#B86B1B",
+  skimmer: "#2B6CB0",
+  sample: "#805AD5",
 };
 
 function trackToLatLngs(track: VesselTrackPoint[]): [number, number][] {
@@ -54,7 +54,7 @@ export default function MapView({
             <GeoJSON
               key="sar-footprint"
               data={data.sarFootprint as unknown as GeoJSON.GeoJsonObject}
-              style={{ color: "#94A3B8", weight: 1.5, dashArray: "4 4", fillOpacity: 0 }}
+              style={{ color: "#5A4A42", weight: 1.5, dashArray: "4 4", fillOpacity: 0 }}
             />
 
             <SlickLayer slick={data.slick} lookalikes={data.lookalikes} showLookalikes={showLookalikes} />
@@ -72,7 +72,7 @@ export default function MapView({
             {selectedSuspect && (
               <Polyline
                 positions={trackToLatLngs(selectedSuspect.track)}
-                pathOptions={{ color: "#1E293B", weight: 3.5, opacity: 0.95, dashArray: "2 6" }}
+                pathOptions={{ color: "#2C2421", weight: 3.5, opacity: 0.95, dashArray: "2 6" }}
               />
             )}
 
@@ -116,10 +116,10 @@ function MapLegend() {
     { color: "#C53B3B", label: "Suspect vessel track" },
   ];
   return (
-    <div className="pointer-events-none absolute bottom-3 left-3 z-[1000] rounded-lg border border-slate-200 bg-white/95 px-3 py-2 shadow-md backdrop-blur-sm">
+    <div className="pointer-events-none absolute bottom-3 left-3 z-[1000] rounded-md border border-stroke bg-panel/95 px-3 py-2 shadow-panel backdrop-blur-sm">
       <ul className="flex flex-col gap-1.5">
         {items.map((it) => (
-          <li key={it.label} className="flex items-center gap-2 text-[11px] font-medium text-slate-500">
+          <li key={it.label} className="flex items-center gap-2 text-[11px] font-medium text-ink-muted">
             <span
               className="inline-block h-1.5 w-4 rounded-sm"
               style={{
